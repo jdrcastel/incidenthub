@@ -11,6 +11,15 @@ Objetivo de hoy: que la API corra en tu máquina y entiendas cada archivo. Todav
 | **Git** | Control de versiones | `git --version` |
 | **VS Code** | Editor | — |
 
+### Si usas Windows
+
+- **Clona el proyecto fuera de OneDrive**, por ejemplo en `C:\dev\incidenthub`. OneDrive intenta sincronizar las miles de archivos de `node_modules`, y eso hace todo lento o bloquea archivos.
+- **Error `npm.ps1 cannot be loaded because running scripts is disabled`**: PowerShell bloquea scripts por defecto. Arréglalo una vez con
+  ```powershell
+  Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+  ```
+  Si tu computadora es de empresa y no te deja, usa la terminal **Command Prompt** o **Git Bash** en VS Code (flecha `˅` junto al `+` de la terminal). Otra opción es escribir `npm.cmd` en vez de `npm`.
+
 ## 2. Clona, instala y abre en VS Code
 
 ```bash
