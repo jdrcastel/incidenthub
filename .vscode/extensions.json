@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "Prisma.prisma",
+    "vitest.explorer",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-containers",
+    "humao.rest-client"
+  ]
+}
