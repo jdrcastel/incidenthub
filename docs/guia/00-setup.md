@@ -13,7 +13,7 @@ Objetivo de hoy: que la API corra en tu máquina y entiendas cada archivo. Todav
 
 ### Si usas Windows
 
-- **Clona el proyecto fuera de OneDrive**, por ejemplo en `C:\dev\incidenthub`. OneDrive intenta sincronizar las miles de archivos de `node_modules`, y eso hace todo lento o bloquea archivos.
+- **Clona el proyecto fuera de OneDrive**, por ejemplo en `C:\dev\incidenthub`. OneDrive intenta sincronizar los miles de archivos de `node_modules`, y eso hace todo lento o bloquea archivos.
 - **Error `npm.ps1 cannot be loaded because running scripts is disabled`**: PowerShell bloquea scripts por defecto. Arréglalo una vez con
   ```powershell
   Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
