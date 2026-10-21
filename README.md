@@ -26,8 +26,8 @@ Node.js 22 · TypeScript · Express 5 · PostgreSQL · Prisma · Zod · Vitest �
 You need Node.js 22 and Docker.
 
 ```bash
-npm install
 cp .env.example .env
+npm install
 docker compose up -d     # PostgreSQL on localhost:5432
 npm run dev              # API on localhost:3000, restarts on save
 ```

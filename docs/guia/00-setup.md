@@ -39,8 +39,8 @@ En VS Code:
 2. Abre la terminal con `` Ctrl+` `` y ejecuta:
 
 ```bash
-npm install                 # descarga dependencias (carpeta node_modules)
 cp .env.example .env        # tu configuración local (en Windows PowerShell: copy .env.example .env)
+npm install                 # descarga dependencias y genera el cliente de Prisma
 docker compose up -d        # arranca PostgreSQL
 npm run dev                 # arranca la API y la reinicia cada vez que guardas
 ```
@@ -64,6 +64,11 @@ Para parar: `Ctrl+C` en la terminal de la API, y `docker compose down` para la b
 | `F12` | Ir a la definición |
 | `Ctrl+.` | Arreglo rápido (importar algo que falta, etc.) |
 | `Ctrl+Space` | Forzar autocompletado |
+
+Si `npm run dev` falla con `Cannot find module '...src/generated/prisma/client.js'`, falta el cliente de Prisma. Créalo con:
+```bash
+npx prisma generate
+```
 
 ## 3. Recorre el proyecto (en este orden)
 
