@@ -1,8 +1,8 @@
-node_modules/
-dist/
-src/generated/
-.env
-.DS_Store
+target/
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+.idea/
+*.iml
+.DS_Store
+.env

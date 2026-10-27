@@ -1,12 +1,8 @@
 {
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
-  "typescript.preferences.importModuleSpecifierEnding": "js",
   "files.exclude": {
-    "**/node_modules": true,
-    "**/dist": true
+    "**/target": true
   }
 }

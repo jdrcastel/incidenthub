@@ -1,8 +1,7 @@
 {
   "recommendations": [
-    "Prisma.prisma",
-    "vitest.explorer",
-    "esbenp.prettier-vscode",
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-boot-dev-pack",
     "ms-azuretools.vscode-containers",
     "humao.rest-client"
   ]

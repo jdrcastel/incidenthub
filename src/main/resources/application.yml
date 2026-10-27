@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: incidenthub
+  datasource:
+    url: jdbc:postgresql://localhost:5432/incidenthub
+    username: incidenthub
+    password: incidenthub
+  jpa:
+    # Flyway owns the schema; Hibernate only checks that entities match it.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

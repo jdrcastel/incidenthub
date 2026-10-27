@@ -1,159 +1,149 @@
-# Lección 0 — Poner el ambiente a andar
+# Lección 0 — Poner el ambiente a andar (Java + Spring Boot)
 
-Objetivo de hoy: que la API corra en tu máquina y entiendas cada archivo. Todavía no escribes código nuevo, salvo un calentamiento de 15 minutos al final.
+Objetivo de hoy: que la API corra en tu máquina y entiendas cada archivo. Solo escribes código en el calentamiento del final (15 minutos).
 
 ## 1. Instala las herramientas
 
 | Herramienta | Para qué | Cómo comprobar |
 |---|---|---|
-| **Node.js 22 LTS**: https://nodejs.org | Ejecutar JavaScript/TypeScript | `node -v` muestra `v22...` |
+| **Java 21 (JDK)**: https://adoptium.net (Temurin 21, instalador `.msi`) | Compilar y ejecutar Java | `java -version` muestra `21` |
 | **Docker Desktop** | Correr PostgreSQL sin instalarlo | `docker --version` |
 | **Git** | Control de versiones | `git --version` |
 | **VS Code** | Editor | — |
 
+En el instalador de Temurin marca **"Set JAVA_HOME variable"** y **"Add to PATH"**. Después **cierra y vuelve a abrir VS Code** para que la terminal lo vea (el mismo problema que tuviste con Docker).
+
+No instales Maven: el proyecto trae el **Maven Wrapper** (`mvnw` / `mvnw.cmd`), que descarga la versión correcta la primera vez.
+
 ### Si usas Windows
 
-- **Clona el proyecto fuera de OneDrive**, por ejemplo en `C:\dev\incidenthub`. OneDrive intenta sincronizar los miles de archivos de `node_modules`, y eso hace todo lento o bloquea archivos.
-- **Error `npm.ps1 cannot be loaded because running scripts is disabled`**: PowerShell bloquea scripts por defecto. Arréglalo una vez con
-  ```powershell
-  Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-  ```
-  Si tu computadora es de empresa y no te deja, usa la terminal **Command Prompt** o **Git Bash** en VS Code (flecha `˅` junto al `+` de la terminal). Otra opción es escribir `npm.cmd` en vez de `npm`.
+- Trabaja **fuera de OneDrive**, por ejemplo en `C:\dev\incidenthub`.
+- En PowerShell los comandos del proyecto se escriben con `.\` delante: `.\mvnw spring-boot:run`.
+- Si PowerShell dice *"running scripts is disabled"*: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
-## 2. Clona, instala y abre en VS Code
+## 2. Abre el proyecto en VS Code
 
-```bash
-git clone https://github.com/jdrcastel/incidenthub.git
-cd incidenthub
-code .
-```
-
-En VS Code:
-
-1. Abajo a la derecha aparece *"This workspace has extension recommendations"*. Pulsa **Install All**:
-   - **Prisma**: colores y autocompletado en `schema.prisma`.
-   - **Vitest**: un panel de tests con botones ▶.
-   - **Prettier**: formatea el código al guardar.
+1. **File → Open Folder… → `C:\dev\incidenthub`**.
+2. Abajo a la derecha aparece *"This workspace has extension recommendations"*. Pulsa **Install All**:
+   - **Extension Pack for Java**: autocompletado, errores en rojo, ejecutar y depurar.
+   - **Spring Boot Extension Pack**: un panel *Spring Boot Dashboard* para arrancar y parar la app con un clic.
    - **Container Tools**: para ver el contenedor de Postgres.
-   - **REST Client**: probar la API desde `requests.http`, como un Postman dentro del editor.
-2. Abre la terminal con `` Ctrl+` `` y ejecuta:
+   - **REST Client**: probar la API desde `requests.http`.
+3. Espera a que termine *"Java: Importing projects"* en la barra de abajo. La primera vez tarda unos minutos.
+4. Si VS Code no encuentra Java 21: `Ctrl+Shift+P` → **Java: Configure Java Runtime**.
 
-```bash
-cp .env.example .env        # tu configuración local (en Windows PowerShell: copy .env.example .env)
-npm install                 # descarga dependencias y genera el cliente de Prisma
-docker compose up -d        # arranca PostgreSQL
-npm run dev                 # arranca la API y la reinicia cada vez que guardas
+## 3. Arranca
+
+Con Docker Desktop abierto, en la terminal de VS Code (`` Ctrl+` ``):
+
+```powershell
+docker compose up -d          # arranca PostgreSQL
+.\mvnw spring-boot:run        # arranca la API (en Mac/Linux: ./mvnw spring-boot:run)
 ```
 
-Cuando veas `IncidentHub API listening on http://localhost:3000`, abre `requests.http` y pulsa **Send Request** sobre cada petición:
+La primera vez tarda porque descarga Maven y las dependencias. Cuando veas `Started IncidentHubApplication`, abre `requests.http` y pulsa **Send Request**:
 
 - `/api/ping` → `{"message":"pong", ...}`
-- `/health` → `{"status":"UP","database":"UP"}`
+- `/actuator/health` → `"status":"UP"`, y dentro `"db":{"status":"UP"}`. Eso confirma que la app habla con Postgres.
 
-Si `/health` dice `DOWN`, Postgres no está corriendo: revisa `docker compose ps`.
+También puedes arrancarla sin terminal: abre `IncidentHubApplication.java` y pulsa **Run** encima del método `main`, o usa el panel **Spring Boot Dashboard**.
 
-Para parar: `Ctrl+C` en la terminal de la API, y `docker compose down` para la base de datos. Los datos se conservan; `docker compose down -v` los borra.
+Para parar: `Ctrl+C` en la terminal, y `docker compose down` para la base de datos.
 
-### Atajos de VS Code que vas a usar todo el tiempo
+### Atajos que vas a usar todo el tiempo
 
 | Atajo | Qué hace |
 |---|---|
-| `Ctrl+Shift+P` | Paleta de comandos (lo busca todo) |
+| `Ctrl+Shift+P` | Paleta de comandos |
 | `` Ctrl+` `` | Abrir/cerrar terminal |
 | `Ctrl+P` | Abrir archivo por nombre |
-| `F12` | Ir a la definición |
-| `Ctrl+.` | Arreglo rápido (importar algo que falta, etc.) |
-| `Ctrl+Space` | Forzar autocompletado |
+| `F12` | Ir a la definición (úsalo para leer el código de Spring) |
+| `Ctrl+.` | Arreglo rápido: importar clases, crear métodos… |
+| `F5` | Depurar. Pon un punto rojo junto a una línea y la app se pausa ahí |
 
-Si `npm run dev` falla con `Cannot find module '...src/generated/prisma/client.js'`, falta el cliente de Prisma. Créalo con:
-```bash
-npx prisma generate
-```
+## 4. Recorre el proyecto (en este orden)
 
-## 3. Recorre el proyecto (en este orden)
+1. **`pom.xml`**: la receta del proyecto para Maven, como un Makefile más la lista de librerías. El `<parent>` de Spring Boot fija las versiones de todo. Cada *starter* trae un paquete de librerías:
+   - `webmvc` → controladores REST, servidor Tomcat embebido y JSON
+   - `validation` → anotaciones como `@NotBlank`
+   - `data-jpa` → hablar con la base de datos usando objetos Java (Hibernate)
+   - `flyway` → migraciones SQL versionadas
+   - `actuator` → `/actuator/health`
+2. **`IncidentHubApplication.java`**: el `main`. `@SpringBootApplication` le dice a Spring: "escanea este paquete y sus subpaquetes, encuentra mis clases anotadas y configura todo". **Por eso todas tus clases van bajo `com.jdrcastel.incidenthub`.**
+3. **`ping/PingController.java`**: el endpoint más simple:
+   - `@RestController` → esta clase atiende HTTP y lo que devuelve se convierte en JSON.
+   - `@RequestMapping("/api/ping")` → la ruta base.
+   - `@GetMapping` → este método atiende `GET`.
+   - `record` → una clase de datos inmutable en una línea. La vas a usar mucho.
+4. **`application.yml`**: la configuración. Con `ddl-auto: validate`, Hibernate **no** crea tablas; las crea Flyway.
+5. **`db/migration/V1__init.sql`**: Flyway ejecuta cada `V<n>__nombre.sql` una sola vez, en orden. **Nunca edites una migración ya aplicada**: crea otra.
+6. **`compose.yaml`**: el contenedor de PostgreSQL.
+7. **`PingControllerTest.java`**: `@WebMvcTest` levanta solo la capa web, sin base de datos, y `MockMvc` simula peticiones HTTP. Ejecútalo con `.\mvnw test` o con el botón ▶ junto al test.
 
-1. **`package.json`**: el equivalente al Makefile más la lista de librerías.
-   - `scripts`: comandos que corres con `npm run <nombre>` (`dev`, `test`, `typecheck`, `build`).
-   - `dependencies`: lo que necesita la app en producción (express, zod, prisma client).
-   - `devDependencies`: solo para desarrollar (typescript, vitest...).
-2. **`src/server.ts`**: el `main()`. Crea la app y la pone a escuchar en un puerto.
-3. **`src/app.ts`**: arma Express:
-   - `express.json()`: convierte el cuerpo JSON de las peticiones en objetos.
-   - `app.use("/api/ping", pingRouter)`: monta un router bajo una ruta.
-   - Un manejador 404 y uno de errores 500, ambos responden JSON.
-   - Está separado de `server.ts` para que los tests usen la app **sin** abrir un puerto real.
-4. **`src/routes/ping.ts`**: el endpoint más simple. `(req, res) => { ... }` es una función flecha; `res.json(...)` responde con JSON.
-5. **`src/routes/health.ts`**: un endpoint `async` que le pregunta algo a la base de datos con `await`.
-6. **`src/config.ts`**: lee `.env` y lo valida con **Zod**. Si falta `DATABASE_URL`, la app falla al arrancar con un mensaje claro.
-7. **`src/db/prisma.ts`**: el cliente de base de datos. **Prisma** es un ORM: escribes `prisma.ticket.create(...)` en vez de SQL a mano, con autocompletado y tipos.
-8. **`prisma/schema.prisma`**: aquí describes tus tablas como `model`. En la Lección 1 añades `Ticket`.
-9. **`compose.yaml`**: el contenedor de PostgreSQL.
-10. **`test/ping.test.ts`**: un test con **Vitest** (`describe`/`it`/`expect`) y **Supertest** (simula peticiones HTTP). Ejecuta `npm test`.
+## 5. Java para alguien que viene de C++
 
-## 4. JavaScript/TypeScript para alguien que viene de C++
+Buena noticia: Java se parece mucho a C++. Mismos `if`, `for`, `while`, `switch`, llaves, `int`, `double`, `boolean`, clases, `public`/`private`, herencia… Lo que cambia:
 
-Lo que se parece: `if`, `for`, `while`, `switch`, llaves, `return`, operadores. Lo que cambia:
+```java
+// Todo vive dentro de una clase. Un archivo = una clase pública con el mismo nombre.
+public class Ticket {
+    private final String title;      // final ≈ const: no cambia después del constructor
+    private Priority priority;
 
-```ts
-// Variables: const (no se reasigna, úsalo casi siempre) y let. Nunca var.
-const name = "Juan";            // el tipo string se infiere
-let count: number = 0;          // o lo escribes tú. number = int y double a la vez
+    public Ticket(String title, Priority priority) {
+        this.title = title;          // this es una referencia, no un puntero: se usa con punto
+        this.priority = priority;
+    }
 
-// Funciones
-function add(a: number, b: number): number {
-  return a + b;
-}
-const double = (x: number) => x * 2;    // función flecha, muy común
-
-// Objetos: como un struct, pero sin declarar la clase primero
-const ticket = { id: 1, title: "SSO down", priority: "CRITICAL" };
-console.log(ticket.title);
-
-// type: describe la forma de un objeto (parecido a un struct en un .h)
-type Priority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";   // solo esos valores
-type Ticket = { id: number; title: string; priority: Priority };
-
-// Arrays (como std::vector) y sus métodos
-const tickets: Ticket[] = [];
-tickets.push({ id: 2, title: "Slow reports", priority: "LOW" });
-const critical = tickets.filter((t) => t.priority === "CRITICAL");  // === siempre, nunca ==
-const titles = tickets.map((t) => t.title);
-
-// Desestructuración y spread
-const { id, title } = ticket;
-const updated = { ...ticket, title: "New title" };   // copia con un campo cambiado
-
-// Strings con variables
-console.log(`Ticket ${id}: ${title}`);
-
-// null / undefined y el operador ?.
-const first = tickets[0]?.title ?? "no tickets";
-
-// async/await: la base de datos y la red no bloquean; esperas el resultado con await
-async function load() {
-  const t = await prisma.ticket.findUnique({ where: { id: 1 } });
-  if (!t) throw new Error("not found");
-  return t;
+    public String getTitle() { return title; }
 }
 
-// Módulos: export en un archivo, import en otro (como #include, pero por nombre)
-export function hello() {}
-import { hello } from "./hello.js";   // ojo: se escribe .js aunque el archivo sea .ts
+// No hay punteros ni delete: todos los objetos se crean con new y el recolector de basura los libera.
+Ticket t = new Ticket("SSO down", Priority.CRITICAL);
+var t2 = new Ticket("Slow reports", Priority.LOW);   // var infiere el tipo, como auto
+
+// Strings: se comparan con equals, NO con ==  (== compara si es el mismo objeto)
+if (t.getTitle().equals("SSO down")) { }
+
+// Enum: como enum class en C++
+public enum Priority { LOW, MEDIUM, HIGH, CRITICAL }
+
+// Record: clase de datos con constructor, getters, equals y toString gratis
+public record TicketSummary(Long id, String title) {}
+var s = new TicketSummary(1L, "SSO down");
+s.title();                           // el getter se llama igual que el campo
+
+// List ≈ std::vector,  Map ≈ std::map
+List<Ticket> tickets = new ArrayList<>();
+tickets.add(t);
+Map<Priority, Integer> slaHours = Map.of(Priority.CRITICAL, 4, Priority.HIGH, 8);
+
+// Streams ≈ algoritmos de <algorithm> encadenados, con lambdas
+List<String> critical = tickets.stream()
+        .filter(x -> x.getPriority() == Priority.CRITICAL)   // los enums sí se comparan con ==
+        .map(Ticket::getTitle)
+        .toList();
+
+// Optional: un valor que puede no estar (en vez de devolver null)
+Optional<Ticket> maybe = repository.findById(1L);
+Ticket found = maybe.orElseThrow(() -> new TicketNotFoundException(1L));
+
+// Excepciones: como en C++, pero se usan mucho más
+throw new IllegalArgumentException("title is required");
+
+// Interfaces: como una clase abstracta pura de C++
+public interface TicketRepository extends JpaRepository<Ticket, Long> {}
 ```
 
-Diferencias que te van a morder:
-- **No hay punteros ni memoria manual**: los objetos y arrays se pasan por referencia y el recolector de basura los libera.
-- **`===` y no `==`.**
-- **Olvidar `await`**: obtienes una `Promise` en vez del dato. Si ves `Promise<...>` donde esperabas un objeto, te falta un `await`.
-- **Los tipos de TypeScript solo existen al compilar.** Para validar datos que llegan de fuera (el cuerpo de una petición) usamos Zod.
+Lo nuevo de verdad son las **anotaciones** (`@Algo`). Son etiquetas que Spring lee para saber qué hacer con tu clase: `@RestController` la convierte en controlador, `@Entity` en una tabla, `@Service` en un servicio. Mucha de la "magia" de Spring sale de ahí.
 
-## 5. Calentamiento (15 min)
+## 6. Calentamiento (15 min)
 
-1. Haz que `/api/ping` devuelva también `app: "incidenthub"`.
-2. Añade al test `expect(res.body.app).toBe("incidenthub")`.
-3. `npm test` → verde. `npm run typecheck` → sin errores.
+1. Añade a `PingResponse` un campo `String app` que devuelva `"incidenthub"`.
+2. Comprueba en el test que llega: `.andExpect(jsonPath("$.app").value("incidenthub"))`.
+3. `.\mvnw test` → `BUILD SUCCESS`.
 4. Súbelo en una rama y abre un Pull Request:
-   ```bash
+   ```powershell
    git checkout -b warmup
    git add .
    git commit -m "Add app name to ping response"
